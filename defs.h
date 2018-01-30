@@ -118,7 +118,7 @@ void            setproc(struct proc*);
 void            sleep(void*, struct spinlock*);
 void            userinit(void);
 int             wait(int *);
-int             waitpid(int pid, int *status, int options); // 
+int             waitpid(int, int *, int); // Our implemented waitpid
 void            wakeup(void*);
 void            yield(void);
 
