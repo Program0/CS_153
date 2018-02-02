@@ -324,11 +324,16 @@ waitpid(int pid, int *status, int options)
   struct proc *p;
   int foundpid;
   struct proc *curproc = myproc();
-  
+
+  // Don't wait for your self
+//  if(curproc->pid == pid)
+//      return -1;
+
+  foundpid = 0; // Assume we don't find it
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
-    foundpid = 0;
+
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if(p->pid != pid)
         continue;

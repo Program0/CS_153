@@ -1,0 +1,18 @@
+sysproc.c:35:sys_waitpid(void)
+syscall.c:104:extern int sys_waitpid(void);
+syscall.c:112:[SYS_waitpid] sys_waitpid,
+
+
+proc.c:322:waitpid(int pid, int *status, int options)
+lab1.c:18:   printf(1, "\ntype \"lab1 1\" to test exit and wait, \"lab1 2\" to test waitpid \n");
+lab1.c:64: printf(1, "\n  Step 2: testing waitpid(int pid, int* status, int options):\n");
+lab1.c:77:      ret_pid = waitpid(pid_a[3], &exit_status, 0);
+lab1.c:81:      ret_pid = waitpid(pid_a[1], &exit_status, 0);
+lab1.c:85:      ret_pid = waitpid(pid_a[2], &exit_status, 0);
+lab1.c:89:      ret_pid = waitpid(pid_a[0], &exit_status, 0);
+lab1.c:93:      ret_pid = waitpid(pid_a[4], &exit_status, 0);
+defs.h:121:int             waitpid(int, int *, int); // Our implemented waitpid
+sysproc.c:42:  return waitpid(pid, status, options);
+user.h:8:int waitpid(int, int*, int);
+mytest.c:16:// Try to find any races between exit and waitpid
+mytest.c:29:      if(waitpid(NULL) != pid){
