@@ -263,3 +263,13 @@ usertests.c:1636:  wait(NULL);
 usertests.c:1724:  wait(NULL);
 forktest.c:39:    if(wait(NULL) < 0){
 forktest.c:45:  if(wait(NULL) != -1){
+proc.c:322: waitpid(int pid, int *status, int options)
+defs.h:121:int             waitpid(int, int *, int); // Our implemented waitpid
+sysproc.c:42:  return waitpid(pid, status, options);
+user.h:8:int waitpid(int, int*, int);
+usys.S:14:SYSCALL(waitpid)
+sysproc.c:35:sys_waitpid(void)
+syscall.c:104:extern int sys_waitpid(void);
+syscall.c:112:[SYS_waitpid] sys_waitpid,
+syscall.h:23:#define SYS_waitpid  22
+

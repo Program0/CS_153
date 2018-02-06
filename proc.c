@@ -300,6 +300,9 @@ wait(int *status)
         if(status != NULL){
             *status = p->exit_status; // update the exit status
         }
+        if(status == NULL){
+            p->exit_status = 0; // If NULL discard the exit status of the child.
+        }
         release(&ptable.lock);
         return pid;
       }
