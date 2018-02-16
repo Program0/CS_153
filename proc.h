@@ -34,6 +34,10 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+// Priorities for use in scheduling
+#define LOWPRIORITY 31
+#define HIGHPRIORITY 0
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -50,7 +54,10 @@ struct proc {
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
   int exit_status;             // Exit status of the process
-
+  int priority;                // Scheduling priority
+  uint arrivetime;              // Time the process arrived
+  uint runtime;                 // Times the process ran
+  uint finishtime;              // Time the process finished
 };
 
 // Process memory is laid out contiguously, low addresses first:

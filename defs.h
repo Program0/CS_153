@@ -119,6 +119,9 @@ void            sleep(void*, struct spinlock*);
 void            userinit(void);
 int             wait(int *);
 int             waitpid(int, int *, int); // Our implemented waitpid
+int             setprioritypid(int, int); // Sets priority for a process
+int             setpriority(int); // Sets priority for current process
+int             getpriority(int); // Returns the priority for a process pid
 void            wakeup(void*);
 void            yield(void);
 
