@@ -1,6 +1,6 @@
 #include "types.h"
 #include "user.h"
-
+#include "stddef.h"
 
 
 int main(int argc, char *argv[])
@@ -15,10 +15,18 @@ int main(int argc, char *argv[])
   
 int testWaitPid(void){
 	
-  int ret_pid, exit_status, pid1, pid2, pid3;
+  int ret_pid, exit_status, pid1, pid2, pid3, wait_ret;
  // use this part to test wait(int pid, int* status, int options)
 
+ printf(1, "\nTest 1: testing wait(int* status):\n");
+
+      printf(1,"\n\nTesting wait without children. exit_status in parent should be -1.\n");
+      wait_ret = wait(NULL);
+      printf(1,"\n\n Wait without children returns %d", wait_ret);
+
  printf(1, "\nTest 2: testing waitpid(int pid, int* status, int options):\n");
+
+      printf(1,"\n\nTesting that exit passed proc->exit_status to status. exit_status in parent should be 0.\n");
 
       // Test that exit passes 0 to proc status for successful exit
       if( !(pid1 = fork())){
