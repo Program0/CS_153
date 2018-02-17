@@ -122,6 +122,8 @@ int             waitpid(int, int *, int); // Our implemented waitpid
 int             setprioritypid(int, int); // Sets priority for a process
 int             setpriority(int); // Sets priority for current process
 int             getpriority(int); // Returns the priority for a process pid
+int             timeinfo(int); // Prints the time metrics for the parameter pid
+int             up_time(void); // Outputs total time interrupts since start
 void            wakeup(void*);
 void            yield(void);
 

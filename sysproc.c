@@ -67,6 +67,20 @@ sys_getpriority(void)
    return getpriority(pid);
 }
 
+int 
+sys_timeinfo(void)
+{
+  int pid;
+  argint(0,&pid);
+  return timeinfo(pid); 
+}
+
+int
+sys_up_time(void)
+{
+    return up_time();
+}
+
 int
 sys_kill(void)
 {

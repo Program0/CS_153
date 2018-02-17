@@ -105,6 +105,8 @@ extern int sys_waitpid(void);
 extern int sys_setprioritypid(void);
 extern int sys_setpriority(void);
 extern int sys_getpriority(void);
+extern int sys_timeinfo(void);
+extern int sys_up_time(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
 
@@ -116,6 +118,8 @@ static int (*syscalls[])(void) = {
 [SYS_setprioritypid] sys_setprioritypid,
 [SYS_setpriority] sys_setpriority,
 [SYS_getpriority] sys_getpriority,
+[SYS_timeinfo]  sys_timeinfo,
+[SYS_up_time]  sys_up_time,
 [SYS_pipe]    sys_pipe,
 [SYS_read]    sys_read,
 [SYS_kill]    sys_kill,
