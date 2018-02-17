@@ -55,11 +55,12 @@ struct proc {
   char name[16];               // Process name (debugging)
   int exit_status;             // Exit status of the process
   int priority;                // Scheduling priority
-  uint create_time;            // Time process was created
-  uint arrive_time;            // Time the process arrived
-  uint first_time_run;         // Time the first time changes from ready to running
-  uint run_time;               // Time the process changes from ready to running
-  uint finish_time;            // Time the process finished
+  uint create_tick;            // Timer interrupt process was created
+  uint arrive_tick;            // Timer interrupt the process arrived
+  uint first_run_tick;         // First timer interrupt when process changes from ready to running
+  uint ticks_ran;              // Number of timer interrupts the process changes from ready to running
+  uint ticks_waited;           // Number of timer interrupts the process waited
+  uint finish_tick;            // Timer interrupt the process finished
 };
 
 // Process memory is laid out contiguously, low addresses first:

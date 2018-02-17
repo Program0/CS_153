@@ -97,7 +97,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->create_time = up_time();
+  p->create_tick = up_time();
   p->priority = 10; // Default value of 10 for every process allocated
 
   release(&ptable.lock);
@@ -163,7 +163,7 @@ userinit(void)
   p->priority = HIGHPRIORITY;
 
   // Set the time it becomes ready and goes to ready queue
-  p->arrive_time = up_time();
+  p->arrive_tick = up_time();
   
   release(&ptable.lock);
 }
@@ -237,7 +237,7 @@ fork(void)
 
   // Setting time metrics:
   // Set the arrive time for the process
-  np->arrive_time = up_time();
+  np->arrive_tick = up_time();
 
 
   release(&ptable.lock);
@@ -272,11 +272,6 @@ exit(int status)
   curproc->cwd = 0;
   curproc->exit_status = status; // update the process status
 
-  // Getting time metrics:
-  // Set the completion time of the process
-  curproc->finish_time = up_time();
-
-
   acquire(&ptable.lock);
 
   // Parent might be sleeping in wait(NULL).
@@ -290,6 +285,10 @@ exit(int status)
         wakeup1(initproc);
     }
   }
+
+  // Getting time metrics:
+  // Set the completion time of the process
+  curproc->finish_tick = up_time();
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -475,22 +474,24 @@ timeinfo(int pid)
  
   acquire(&ptable.lock);
   // Scan through table looking for the parameter pid.
-  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->pid != pid)
-         continue;
-      // We found it.
-      release(&ptable.lock);
-      cprintf("\nTime process arrived in scheduler: %d",p->arrive_time);
-      cprintf("\nTime process first ran: %d",p->first_time_run);
-      cprintf("\nTime process wait time: %d",(p->first_time_run - p->arrive_time) );
-      cprintf("\nTime process completed: %d", p->finish_time);
-      cprintf("\nTime process turn around time: %d",(p->finish_time - p->arrive_time));            
-      return 0;
-  }
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+        if(p->pid != pid)
+            continue;
+    // We found it.
+    release(&ptable.lock);
+    cprintf("\nTime process arrived in scheduler: %d",p->arrive_tick);
+    cprintf("\nTime process first ran: %d",p->first_run_tick);
+    cprintf("\nTime process wait time: %d",(p->first_run_tick - p->arrive_tick) );
+    cprintf("\nTime process completed: %d", p->finish_tick);
+    cprintf("\nTimes process ran: %d", p->ticks_ran);
+    cprintf("\nTimes process waited: %d", p->ticks_waited);
+    cprintf("\nTime process turn around time: %d",(p->finish_tick - p->arrive_tick));            
+    return 0;
+    }
 
-  // Either the current process was killed or the passed PID does not exists. 
-  release(&ptable.lock);
-  return -1;
+    // Either the current process was killed or the passed PID does not exists. 
+    release(&ptable.lock);
+    return -1;
 }
 
 // Returns the number of timer interrupts since start
@@ -547,6 +548,7 @@ scheduler(void)
         if(processToRun != l && l->state == RUNNABLE 
            && l->priority > HIGHPRIORITY ){
              //l->priority--;
+             l->ticks_waited++;
         }         
       }
             
@@ -559,14 +561,14 @@ scheduler(void)
       
 
       // Update the run times
-      if(processToRun->arrive_time > processToRun->first_time_run){
-        // Set the first time the process runs and at what time it last ran
+      if(processToRun->arrive_tick > processToRun->first_run_tick){
+        // Set the first tick the process runs and number of ticks it ran
         current_time = up_time();
-        processToRun->first_time_run = current_time;
-        processToRun->run_time = current_time;
+        processToRun->first_run_tick = current_time;
+        processToRun->ticks_ran++;
       }
       else{
-        processToRun->run_time = up_time();  // Just update at what the time the process last ran
+        processToRun->ticks_ran++;  // Just update the number of ticks the process ran
       }
       
 
