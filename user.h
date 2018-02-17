@@ -10,6 +10,7 @@ int setprioritypid(int, int);
 int setpriority(int);
 int getpriority(int);
 int timeinfo(int);
+int up_time(void);
 int pipe(int*);
 int write(int, void*, int);
 int read(int, void*, int);

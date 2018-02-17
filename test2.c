@@ -99,22 +99,25 @@ void testPriorityInheritance(void)
     int pid, exit_status;
     pid = fork();
     setpriority(5);
+    printf(1,"\nTotal ticks since start: %d",uptime());
     if( pid == 0 ){
         printf(1,"\nMy parent has waited for me.\n");
         printf(1,"\nI am child %d with priority %d: \n", getpid(),getpriority(getpid()));
-        
+        printf(1,"\nTotal ticks since start: %d",uptime());
         // Wait so that priority changes
         for (int j=0;j<50000;j++) {
 		    for(int k=0;k<10000;k++) {
 		        asm("nop"); 
 		    }
         }
+        printf(1,"\nTotal ticks since start: %d",uptime());
         exit(0);       
     }
     if(pid > 0 ){
         int ret_value;
         printf(1,"\nI am parent %d, and priority %d: \n", getpid(),getpriority(getpid()));
-        printf(1,"\nBefore waiting child %d has priority %d: \n", pid,getpriority(pid));        
+        printf(1,"\nBefore waiting child %d has priority %d: \n", pid,getpriority(pid));  
+        printf(1,"\nTotal ticks since start: %d",uptime());      
         int prior = getpriority(pid);
         // Wait so that child is not reaped yet.
         for (int j=0;j<50000;j++) {
@@ -128,6 +131,8 @@ void testPriorityInheritance(void)
 
         printf(1,"\nI am parent %d, and priority %d: \n", getpid(),getpriority(getpid()));
         printf(1,"\nAfter waiting child %d, has priority %d\n", pid, prior);
+        printf(1,"\nTotal ticks since start: %d\n",up_time());
+        exit(0);
     }
 }
 
@@ -135,16 +140,21 @@ void testTimeInfo(void)
 {
     int pid;
     pid = fork();
+    int exit_status;
     if( pid == 0 ){
         printf(1,"\nI am child %d, with time info: \n", getpid());
         timeinfo(getpid());
+        exit(0);
     }
     if(pid > 0 ){
-        wait(NULL);
-        printf(1,"\nI am parent %d, with time info: \n", getpid());
+        waitpid(pid, &exit_status, 0);
+        printf(1,"\n\nI am parent %d, with time info: \n", getpid());
         timeinfo(getpid());
+        printf(1,"\nI haven't finished running.\n");
         printf(1,"\nMy child %d, has time info:\n", pid);
         timeinfo(pid);
+        printf(1,"exit stage right");
+        exit(0);
     }
 }
   
