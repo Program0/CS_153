@@ -50,34 +50,34 @@ void testPriorityAging(void){
     printf(1,"\nI run first and other process wait for me. So, my priority decrements to lower priority.\n");
      
     for (int i = 0; i <  3; i++) {
-    // Create a new process
-    pid = fork();
+        // Create a new process
+        pid = fork();
     
-    if (pid > 0) {
-        continue;
-    }
+        if (pid > 0) {
+            continue;
+        }
     
-    else if (pid == 0) {
-        int priority1, priority2; 
-        setpriority(10);
-        // First time we run we get a priority
-        priority1 = getpriority(getpid());
-        printf(1,"\nchild# %d with priority %d has started! \n", getpid(), priority1);
-		for (int j=0;j<50000;j++) {
-			for(int k=0;k<10000;k++) {
-				asm("nop");
-			}
-		}
+        else if (pid == 0) {
+            int priority1, priority2; 
+            setpriority(10);
+            // First time we run we get a priority
+            priority1 = getpriority(getpid());
+            printf(1,"\nchild# %d with priority %d has started! \n", getpid(), priority1);
+        
+	    	for (int j=0;j<50000;j++) {
+	    		for(int k=0;k<10000;k++) {
+	    			asm("nop");
+	    		}
+	    	}
 		
-		// Test priority change after running
-		priority2 = getpriority(getpid());				
-		printf(1, "\nchild# %d with priority %d has finished! \n", getpid(), priority2);
-		exit(0);
-        }
-        else {
-			printf(2," \n Error \n");
-			
-        }
+	    	// Test priority change after running
+	    	priority2 = getpriority(getpid());				
+	    	printf(1, "\nchild# %d with priority %d has finished! \n", getpid(), priority2);
+	    	exit(0);
+            }
+            else {
+	    		printf(2," \n Error \n");	
+            }
 	}
 
 	if(pid > 0) {
@@ -85,17 +85,24 @@ void testPriorityAging(void){
 	    priority = getpriority(getpid());
 		printf(1,"\nI am the parent %d with priority %d before waiting\n", getpid(),priority);
 
-/*
+
         for (int i = 0; i < 3; i++){
             wait(NULL);        
         }
-*/
-        printf(1,"\nI am the parent %d with priority %d\n after waiting", getpid(),priority);
+
+        printf(1,"\nI am the parent %d with priority %d\n after waiting\n", getpid(),getpriority(getpid()));
+        exit(0);
     }
 }
 
 void testPriorityInheritance(void)
 {
+    printf(1,"\nTesting priority donation/inheritance. \nWe set the parent's priority to 5 and the child's priority default to 10\n");
+    printf(1,"\nWe make the parent wait so that child inherits priority\n");
+    printf(1,"\nI am the parent %d with priority %d\n", getpid(),getpriority(getpid()));
+
+    printf(1,"\nI am the parent %d with priority %d after setting priority\n", getpid(),getpriority(getpid()));
+
     int pid, exit_status;
     pid = fork();
     setpriority(5);
@@ -103,21 +110,20 @@ void testPriorityInheritance(void)
     if( pid == 0 ){
         printf(1,"\nMy parent has waited for me.\n");
         printf(1,"\nI am child %d with priority %d: \n", getpid(),getpriority(getpid()));
-        printf(1,"\nTotal ticks since start: %d",uptime());
         // Wait so that priority changes
         for (int j=0;j<50000;j++) {
 		    for(int k=0;k<10000;k++) {
 		        asm("nop"); 
 		    }
         }
-        printf(1,"\nTotal ticks since start: %d",uptime());
+        printf(1,"\nChild is finishing run.");
         exit(0);       
     }
     if(pid > 0 ){
         int ret_value;
         printf(1,"\nI am parent %d, and priority %d: \n", getpid(),getpriority(getpid()));
         printf(1,"\nBefore waiting child %d has priority %d: \n", pid,getpriority(pid));  
-        printf(1,"\nTotal ticks since start: %d",uptime());      
+
         int prior = getpriority(pid);
         // Wait so that child is not reaped yet.
         for (int j=0;j<50000;j++) {
@@ -131,13 +137,15 @@ void testPriorityInheritance(void)
 
         printf(1,"\nI am parent %d, and priority %d: \n", getpid(),getpriority(getpid()));
         printf(1,"\nAfter waiting child %d, has priority %d\n", pid, prior);
-        printf(1,"\nTotal ticks since start: %d\n",up_time());
+        printf(1,"\nParent is finishing now\n");
         exit(0);
     }
 }
 
 void testTimeInfo(void)
 {
+    printf(1,"\nTesting process time output\n");
+
     int pid;
     pid = fork();
     int exit_status;
@@ -153,7 +161,7 @@ void testTimeInfo(void)
         printf(1,"\nI haven't finished running.\n");
         printf(1,"\nMy child %d, has time info:\n", pid);
         timeinfo(pid);
-        printf(1,"exit stage right");
+        printf(1,"\nexit stage right\n");
         exit(0);
     }
 }
