@@ -97,6 +97,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->create_time = up_time();
+  p->priority = 10; // Default value of 10 for every process allocated
 
   release(&ptable.lock);
 
@@ -159,15 +161,10 @@ userinit(void)
 
   p->state = RUNNABLE;
   p->priority = HIGHPRIORITY;
-  // Set the completion time of the process
-  uint xticks;
 
-  acquire(&tickslock);
-  xticks = ticks;
-  release(&tickslock);
-  p->arrivetime = xticks;
- 
-
+  // Set the time it becomes ready and goes to ready queue
+  p->arrive_time = up_time();
+  
   release(&ptable.lock);
 }
 
@@ -235,17 +232,12 @@ fork(void)
   np->state = RUNNABLE;
 
   // Priority Aging:
-  // Set the priority to parent's priority
-  np->priority = np->parent->priority;
+  // Set the priority to lowest priority
+  //np->priority = LOWPRIORITY;
 
   // Setting time metrics:
   // Set the arrive time for the process
-  uint xticks;
-  // Be sure to lock the clock counter before accessing it
-  acquire(&tickslock);
-  xticks = ticks;
-  release(&tickslock);
-  np->arrivetime = xticks;
+  np->arrive_time = up_time();
 
 
   release(&ptable.lock);
@@ -282,12 +274,7 @@ exit(int status)
 
   // Getting time metrics:
   // Set the completion time of the process
-  uint xticks;
-  // Be sure to lock the clock counter before accessing it
-  acquire(&tickslock);
-  xticks = ticks;
-  release(&tickslock);
-  curproc->finishtime = xticks;
+  curproc->finish_time = up_time();
 
 
   acquire(&ptable.lock);
@@ -373,7 +360,7 @@ waitpid(int pid, int *status, int options)
   int foundpid;
   struct proc *curproc = myproc();
 
-  // Don't wait for your self
+// Don't wait for your self
 //  if(curproc->pid == pid)
 //      return -1;
 
@@ -425,6 +412,7 @@ waitpid(int pid, int *status, int options)
 int setprioritypid(int pid, int newpriority)
 {
   struct proc *p;
+  int old_priority;
 
   acquire(&ptable.lock);
     // Scan through table looking for the parameter pid.
@@ -433,11 +421,10 @@ int setprioritypid(int pid, int newpriority)
          continue;
       // We found it. We update its priority
       // and return 0 for success
-      cprintf("pid: %d\n", pid);
+      old_priority = p->priority;
       p->priority = newpriority;
-      cprintf("priority: %d\n", newpriority);
       release(&ptable.lock);
-      return 0;
+      return old_priority;
     }
 
   // No point setting priority if we don't find the pid.
@@ -481,6 +468,42 @@ int getpriority(int pid)
   return -1;
 }
 
+int
+timeinfo(int pid)
+{
+  struct proc *p;
+ 
+  acquire(&ptable.lock);
+  // Scan through table looking for the parameter pid.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->pid != pid)
+         continue;
+      // We found it.
+      release(&ptable.lock);
+      cprintf("\nTime process arrived in scheduler: %d",p->arrive_time);
+      cprintf("\nTime process first ran: %d",p->first_time_run);
+      cprintf("\nTime process wait time: %d",(p->first_time_run - p->arrive_time) );
+      cprintf("\nTime process completed: %d", p->finish_time);
+      cprintf("\nTime process turn around time: %d",(p->finish_time - p->arrive_time));            
+      return 0;
+  }
+
+  // Either the current process was killed or the passed PID does not exists. 
+  release(&ptable.lock);
+  return -1;
+}
+
+// Returns the number of timer interrupts since start
+int
+up_time(void)
+{
+    uint current_time;
+    acquire(&tickslock);
+    current_time = ticks;
+    release(&tickslock);
+    return current_time;
+}
+
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -495,6 +518,7 @@ scheduler(void)
   struct proc *p, *l, *processToRun;
   struct cpu *c = mycpu();
   c->proc = 0;
+  uint current_time; // current clock time
   
   for(;;){
     // Enable interrupts on this processor.
@@ -515,33 +539,36 @@ scheduler(void)
           }         
       }
       
+      current_time = up_time();
       // Priority aging:
       // We look with the process with the highest priority = lowest priority number
       for(l = ptable.proc; l < &ptable.proc[NPROC]; l++){
-          if(processToRun != l && l->state == RUNNABLE && l->priority > HIGHPRIORITY){
-             l->priority--;
-          }         
+        // If the process waits we increment its priority
+        if(processToRun != l && l->state == RUNNABLE 
+           && l->priority > HIGHPRIORITY ){
+             //l->priority--;
+        }         
       }
             
       
-      // If a process runs we decrement is priority
+      // If a process runs we decrement its priority
       // Guard against going over the lowest priority.
       if(processToRun->priority < LOWPRIORITY){
-        processToRun->priority++;
+        //processToRun->priority++;
       }
       
-      // Getting time metrics:
-      // Set the completion time of the process
-      uint xticks;
 
-      // We set the first time the process runs      
-      if(processToRun->arrivetime > processToRun->runtime){
-        acquire(&tickslock);
-        xticks = ticks;
-        release(&tickslock);
-        processToRun->runtime = xticks;
+      // Update the run times
+      if(processToRun->arrive_time > processToRun->first_time_run){
+        // Set the first time the process runs and at what time it last ran
+        current_time = up_time();
+        processToRun->first_time_run = current_time;
+        processToRun->run_time = current_time;
       }
-
+      else{
+        processToRun->run_time = up_time();  // Just update at what the time the process last ran
+      }
+      
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it

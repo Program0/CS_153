@@ -24,4 +24,6 @@
 #define SYS_setprioritypid 23
 #define SYS_getpriority 24
 #define SYS_setpriority 25
+#define SYS_timeinfo 26
+#define SYS_up_time 27
 

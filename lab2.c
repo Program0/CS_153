@@ -51,7 +51,7 @@ int PScheduler(void){
 			wait(NULL);
 
 		}
-                     printf(1,"\n if processes with highest priority finished first then its correct \n");
+        printf(1,"\n if processes with highest priority finished first then its correct \n");
 }
 			
 	return 0;}
