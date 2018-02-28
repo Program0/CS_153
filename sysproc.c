@@ -7,6 +7,28 @@
 #include "mmu.h"
 #include "proc.h"
 
+int sys_shm_open(void) {
+  int id;
+  char **pointer;
+
+  if(argint(0, &id) < 0)
+    return -1;
+
+  if(argptr(1, (char **) (&pointer),4)<0)
+    return -1;
+  return shm_open(id, pointer);
+}
+
+int sys_shm_close(void) {
+  int id;
+
+  if(argint(0, &id) < 0)
+    return -1;
+
+  
+  return shm_close(id);
+}
+
 int
 sys_fork(void)
 {
@@ -16,69 +38,14 @@ sys_fork(void)
 int
 sys_exit(void)
 {
-  int status;
-  if(argint(0,&status) < 0)
-     return -1;
-  exit(status);
+  exit();
   return 0;  // not reached
 }
 
 int
 sys_wait(void)
 {
-  int *status;
-  argptr(0, (char**) &status, sizeof(int *));
-  return wait(status);
-}
-
-int
-sys_waitpid(void)
-{
-  int pid, options;
-  int *status;
-  argint(0,&pid);
-  argint(2,&options);
-  argptr(1,(char**) &status, sizeof(int*));
-  return waitpid(pid, status, options);
-}
-
-int 
-sys_setprioritypid(void)
-{
-  int pid, priority;
-  argint(0,&pid);
-  argint(1,&priority);
-  return setprioritypid(pid, priority); 
-}
-
-int 
-sys_setpriority(void)
-{
-  int priority;
-  argint(0,&priority);
-  return setpriority(priority); 
-}
-
-int
-sys_getpriority(void)
-{
-   int pid;
-   argint(0,&pid);
-   return getpriority(pid);
-}
-
-int 
-sys_timeinfo(void)
-{
-  int pid;
-  argint(0,&pid);
-  return timeinfo(pid); 
-}
-
-int
-sys_up_time(void)
-{
-    return up_time();
+  return wait();
 }
 
 int

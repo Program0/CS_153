@@ -12,7 +12,6 @@
 #include "user.h"
 #include "fs.h"
 #include "fcntl.h"
-#include "stddef.h" // For using NULL - probably better to typedef
 
 int
 main(int argc, char *argv[])
@@ -44,7 +43,7 @@ main(int argc, char *argv[])
     read(fd, data, sizeof(data));
   close(fd);
 
-  wait(NULL);
+  wait();
 
-  exit(0);
+  exit();
 }

@@ -3,14 +3,8 @@ struct rtcdate;
 
 // system calls
 int fork(void);
-int exit(int) __attribute__((noreturn));
-int wait(int *);
-int waitpid(int, int*, int);
-int setprioritypid(int, int);
-int setpriority(int);
-int getpriority(int);
-int timeinfo(int);
-int up_time(void);
+int exit(void) __attribute__((noreturn));
+int wait(void);
 int pipe(int*);
 int write(int, void*, int);
 int read(int, void*, int);
@@ -29,6 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+int shm_open(int, char **);
+int shm_close(int);
 
 // ulib.c
 int stat(char*, struct stat*);
