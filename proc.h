@@ -34,13 +34,11 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
-// Priorities for use in scheduling
-#define LOWPRIORITY 31
-#define HIGHPRIORITY 0
-
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
+  uint stack_top;              // Address of the process stack top
+  uint stack_size;             // Number of pages in the stack
   pde_t* pgdir;                // Page table
   char *kstack;                // Bottom of kernel stack for this process
   enum procstate state;        // Process state
@@ -53,14 +51,6 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  int exit_status;             // Exit status of the process
-  int priority;                // Scheduling priority
-  uint create_tick;            // Timer interrupt process was created
-  uint arrive_tick;            // Timer interrupt the process arrived
-  uint first_run_tick;         // First timer interrupt when process changes from ready to running
-  uint ticks_ran;              // Number of timer interrupts the process changes from ready to running
-  uint ticks_waited;           // Number of timer interrupts the process waited
-  uint finish_tick;            // Timer interrupt the process finished
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -4,7 +4,6 @@
 #include "stat.h"
 #include "user.h"
 #include "fcntl.h"
-#include "stddef.h" // For using NULL - probably better to typedef
 
 char *argv[] = { "sh", 0 };
 
@@ -25,14 +24,14 @@ main(void)
     pid = fork();
     if(pid < 0){
       printf(1, "init: fork failed\n");
-      exit(0);
+      exit();
     }
     if(pid == 0){
       exec("sh", argv);
       printf(1, "init: exec sh failed\n");
-      exit(0);
+      exit();
     }
-    while((wpid=wait(NULL)) >= 0 && wpid != pid)
+    while((wpid=wait()) >= 0 && wpid != pid)
       printf(1, "zombie!\n");
   }
 }
