@@ -18,9 +18,8 @@ exec(char *path, char **argv)
   struct proghdr ph;
   pde_t *pgdir, *oldpgdir;
   struct proc *curproc = myproc();
-    
-  curproc -> stack_size = 1; 
- 
+  curproc->stack_size = 1; // Initialize the number pages in the stack.
+
   begin_op();
 
   if((ip = namei(path)) == 0){
@@ -65,11 +64,13 @@ exec(char *path, char **argv)
   // Allocate two pages at the next page boundary.
   // Make the first inaccessible.  Use the second as the user stack.
   //sz = PGROUNDUP(sz); 
-  if((sp = allocuvm(pgdir, KERNBASE - 2*PGSIZE, KERNBASE-4)) == 0)//allocates and maps two pages
+  // We modify the call to 
+  if((sp = allocuvm(pgdir, KERNBASE - 2*PGSIZE, KERNBASE - 4)) == 0)
     goto bad;
-  stack_top = KERNBASE - PGSIZE; 
-  //Create the guard page
-  clearpteu(pgdir, (char*)(sp - 2*PGSIZE));//clear PTE for the first page to create a buffer page betweeb stack and code/data
+  stack_top = KERNBASE - PGSIZE;
+  // Create a guard page underneath the stack top
+  clearpteu(pgdir, (char*)(sp - 2*PGSIZE));
+  
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
     if(argc >= MAXARG)
@@ -99,9 +100,9 @@ exec(char *path, char **argv)
   oldpgdir = curproc->pgdir;
   curproc->pgdir = pgdir;
   curproc->sz = sz;
+  curproc->stack_top = stack_top; // Update the address for the stack
   curproc->tf->eip = elf.entry;  // main
   curproc->tf->esp = sp;
-  curproc->stack_top = stack_top; 
   switchuvm(curproc);
   freevm(oldpgdir);
   return 0;

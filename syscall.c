@@ -103,6 +103,7 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_stack_info(void);
 
 extern int sys_shm_open(void);
 extern int sys_shm_close(void);
@@ -129,6 +130,7 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_stack_info] sys_stack_info,
 [SYS_shm_open] sys_shm_open,
 [SYS_shm_close] sys_shm_close
 };
