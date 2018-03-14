@@ -111,14 +111,3 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
-
-int
-sys_stack_info(void)
-{
-    struct proc *curproc = myproc();
-    cprintf("\nProcess pid: %d \n",curproc->pid);
-    cprintf("\nStack size: %d \n", curproc->stack_size);
-    cprintf("\nStack top: 0x%x\n%", curproc->stack_top);
-    return 0;
-}
-

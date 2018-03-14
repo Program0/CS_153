@@ -17,10 +17,10 @@
 int
 fetchint(uint addr, int *ip)
 {
-  //struct proc *curproc = myproc();
+  struct proc *curproc = myproc();
 
-  //if(addr >= curproc->sz || addr+4 > curproc->sz)
-    //return -1;
+  if(addr >= curproc->sz || addr+4 > curproc->sz)
+    return -1;
   *ip = *(int*)(addr);
   return 0;
 }
@@ -34,8 +34,8 @@ fetchstr(uint addr, char **pp)
   char *s, *ep;
   struct proc *curproc = myproc();
 
-  //if(addr >= curproc->sz)
-    //return -1;
+  if(addr >= curproc->sz)
+    return -1;
   *pp = (char*)addr;
   ep = (char*)curproc->sz;
   for(s = *pp; s < ep; s++){
@@ -59,12 +59,12 @@ int
 argptr(int n, char **pp, int size)
 {
   int i;
-  //struct proc *curproc = myproc();
+  struct proc *curproc = myproc();
  
   if(argint(n, &i) < 0)
     return -1;
-  //if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
-    //return -1;
+  if(size < 0 || (uint)i >= curproc->sz || (uint)i+size > curproc->sz)
+    return -1;
   *pp = (char*)i;
   return 0;
 }
@@ -103,7 +103,6 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
-extern int sys_stack_info(void);
 
 extern int sys_shm_open(void);
 extern int sys_shm_close(void);
@@ -130,7 +129,6 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
-[SYS_stack_info] sys_stack_info,
 [SYS_shm_open] sys_shm_open,
 [SYS_shm_close] sys_shm_close
 };

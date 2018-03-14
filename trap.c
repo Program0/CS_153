@@ -77,29 +77,6 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-  case T_PGFLT:
-    ; // Need empty statement after label to make compiler happy
-
-    uint offending_page; 
-    offending_page = rcr2();
-    uint sp;
-    struct proc *curproc = myproc();
-    if(offending_page >= (curproc->stack_top - PGSIZE -4 ) && offending_page < curproc->stack_top ){
-        // Allocate memory for the new page right below stack top.
-        if ( (sp = allocuvm(curproc->pgdir, curproc->stack_top - 2*PGSIZE, curproc->stack_top-PGSIZE)) == 0){
-                // If fail to allocate print message and kill process.
-                 cprintf("pid %d %s: trap %d err %d on cpu %d "
-                        "eip 0x%x addr 0x%x--kill proc\n",
-                        curproc->pid, curproc->name, tf->trapno,
-                        tf->err, cpuid(), tf->eip, rcr2());
-                curproc->killed = 1;
-        }
-        // Move the stack's top and update its size
-        //clearpteu(curproc->pgdir, (char*)(sp - 2*PGSIZE));
-        curproc->stack_top = curproc->stack_top - PGSIZE;
-        curproc->stack_size++;
-        break;
-    }
 
   //PAGEBREAK: 13
   default:
